@@ -122,6 +122,10 @@ impl<'a> Url<'a> {
             Ok(UrlScheme::HTTP)
         } else if scheme.eq_ignore_ascii_case("https") {
             Ok(UrlScheme::HTTPS)
+        } else if scheme.eq_ignore_ascii_case("mqtt") {
+            Ok(UrlScheme::MQTT)
+        } else if scheme.eq_ignore_ascii_case("mqtts") {
+            Ok(UrlScheme::MQTTS)
         } else {
             Err(Error::UnsupportedScheme)
         }?;
@@ -311,6 +315,13 @@ mod tests {
         assert_eq!(url.port_or_default(), 80);
         assert_eq!(url.path(), "/");
         assert_eq!(url.query(), None);
+
+        let url = Url::parse("mqtt://").unwrap();
+        assert_eq!(url.scheme(), UrlScheme::MQTT);
+        assert_eq!(url.host(), "");
+        assert_eq!(url.port_or_default(), 1883);
+        assert_eq!(url.path(), "/");
+        assert_eq!(url.query(), None);
     }
 
     #[test]
@@ -348,15 +359,15 @@ mod tests {
 
     #[test]
     fn test_parse_path_query() {
-        let url = Url::parse("http://localhost/foo/bar?foo=bar&hello=world").unwrap();
-        assert_eq!(url.scheme(), UrlScheme::HTTP);
+        let url = Url::parse("mqtt://localhost/foo/bar?foo=bar&hello=world").unwrap();
+        assert_eq!(url.scheme(), UrlScheme::MQTT);
         assert_eq!(url.host(), "localhost");
-        assert_eq!(url.port_or_default(), 80);
+        assert_eq!(url.port_or_default(), 1883);
         assert_eq!(url.path(), "/foo/bar");
         assert_eq!(url.query(), Some("foo=bar&hello=world"));
 
         assert_eq!(
-            "http://localhost/foo/bar?foo=bar&hello=world",
+            "mqtt://localhost/foo/bar?foo=bar&hello=world",
             std::format!("{:?}", url)
         );
     }
